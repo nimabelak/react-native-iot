@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 export default function App() {
+  const [isLedOn, setLedState] = useState(false);
+
+  const toggleLed = async () => {
+    try {
+      const response = await fetch("http://192.168.1.55/onoff", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isLedOn: !isLedOn }),
+      });
+      if (response.ok) {
+        setLedState(!isLedOn);
+      }
+    } catch (error) {
+      console.error("Error toggling LED:", error);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>NodeMCU LED Control</Text>
+      <TouchableOpacity onPress={toggleLed} style={[styles.btn , {backgroundColor: isLedOn ? "red" : "green"}]}>
+        <Text>{isLedOn ? "Turn Off LED" : "Turn On LED"}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  btn: {
+    marginVertical:20,
+    padding:24,
+    borderRadius:4,
+    elevation:4
+  }
+})
